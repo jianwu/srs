@@ -410,7 +410,49 @@ int SrsHttpHooks::on_hls_notify(int cid, std::string url, SrsRequest* req, std::
     return ret;
 }
 
-int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& res)
+int SrsHttpHooks::on_get_origin(std::string url, SrsRequest* req, std::string& origin_url)
+{
+    int ret = ERROR_SUCCESS;
+    
+    url = srs_string_replace(url, "[app]", req->app);
+    url = srs_string_replace(url, "[stream]", req->stream);
+    
+    std::string res;
+    int status_code;
+    SrsJsonAny* json;
+    std::string http_req;
+    ret = do_get(url, http_req, status_code, res, &json);
+    SrsAutoFree(SrsJsonAny, json);
+
+    if (ret != ERROR_SUCCESS) {
+        srs_error("http get on_get_origin uri failed. url=%s, response=%s, code=%d, ret=%d",
+                  url.c_str(), res.c_str(), status_code, ret);
+        return ret;
+    }
+
+    srs_trace("http hook on_get_origin success. url=%s, response=%s, ret=%d",
+              url.c_str(), res.c_str(), ret);
+    SrsJsonAny* originJson = NULL;
+    if (!json->is_object() || !(originJson = json->to_object()->ensure_property_string("origin"))) {
+        srs_error("http get on_get_origin uri failed invalid data. url=%s, response=%s", url.c_str(), res.c_str());
+        return ERROR_HTTP_DATA_INVALID;
+    }
+    
+    origin_url = originJson->to_str();
+    return ret;
+}
+
+int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& res, SrsJsonAny** json)
+{
+    return do_http_request(true, url, req, code, res, json);
+}
+
+int SrsHttpHooks::do_get(std::string url, std::string req, int& code, string& res, SrsJsonAny** json)
+{
+    return do_http_request(false, url, req, code, res, json);
+}
+
+int SrsHttpHooks::do_http_request(bool isPost, std::string url, std::string req, int& code, std::string& res, SrsJsonAny** json)
 {
     int ret = ERROR_SUCCESS;
     
@@ -426,8 +468,14 @@ int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& r
     }
     
     ISrsHttpMessage* msg = NULL;
-    if ((ret = http.post(uri.get_path(), req, &msg)) != ERROR_SUCCESS) {
-        return ret;
+    if (isPost) {
+        if ((ret = http.post(uri.get_path(), req, &msg)) != ERROR_SUCCESS) {
+            return ret;
+        }
+    } else {
+        if ((ret = http.get(uri.get_path(), req, &msg)) != ERROR_SUCCESS) {
+            return ret;
+        }
     }
     SrsAutoFree(ISrsHttpMessage, msg);
     
@@ -458,7 +506,16 @@ int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& r
         srs_error("invalid response %s. ret=%d", res.c_str(), ret);
         return ret;
     }
-    SrsAutoFree(SrsJsonAny, info);
+    
+    SrsJsonAny* free_info = NULL;
+    if (json) {
+        *json = info;
+    } else {
+        free_info = info;
+    }
+        
+    // Auto free only if json is null to make it available for caller
+    SrsAutoFree(SrsJsonAny, free_info); 
     
     // response error code in string.
     if (!info->is_object()) {
@@ -478,13 +535,13 @@ int SrsHttpHooks::do_post(std::string url, std::string req, int& code, string& r
         srs_error("invalid response without code, ret=%d", ret);
         return ret;
     }
-
+    
     if ((res_code->to_integer()) != ERROR_SUCCESS) {
         ret = ERROR_RESPONSE_CODE;
         srs_error("error response code=%d. ret=%d", res_code->to_integer(), ret);
         return ret;
     }
-
+    
     return ret;
 }
 

@@ -15,6 +15,7 @@
 # by winlin
 *.pyc
 *.swp
+xcuserdata
 /trunk/Makefile
 /trunk/objs
 /trunk/src/build-qt-Desktop-Debug
@@ -28,3 +29,5 @@
 
 # Apple-specific garbage files.
 .AppleDouble
+/mockserver/nbproject/
+/mockserver/node_modules/

@@ -44,6 +44,8 @@ using namespace std;
 #include <srs_app_utility.hpp>
 #include <srs_rtmp_amf0.hpp>
 #include <srs_kernel_utility.hpp>
+#include <srs_app_http_hooks.hpp>
+
 
 // when error, edge ingester sleep for a while and retry.
 #define SRS_EDGE_INGESTER_SLEEP_US (int64_t)(1*1000*1000LL)
@@ -354,6 +356,18 @@ int SrsEdgeIngester::connect_server(string& ep_server, string& ep_port)
     // select the origin.
     std::string server = conf->args.at(origin_index % conf->args.size());
     origin_index = (origin_index + 1) % conf->args.size();
+
+    if (server.find("http://") == 0) {  // it's a http callback
+#ifdef SRS_AUTO_HTTP_CALLBACK
+        if((ret = SrsHttpHooks::on_get_origin(server, _req, server)) != ERROR_SUCCESS) {
+            srs_error("Get dynamic orign from http call back failed, server=%s, tcUrl=%s", server.c_str());
+            return ERROR_SYSTEM_HTTP_CALLBACK_DISABLED;
+        }
+#else
+        srs_error("Http Callback is disabled when trying to get dynamic edge");
+        return ERROR_SYSTEM_HTTP_CALLBACK_DISABLED;
+#endif
+    }
     
     std::string s_port = SRS_CONSTS_RTMP_DEFAULT_PORT;
     int port = ::atoi(SRS_CONSTS_RTMP_DEFAULT_PORT);

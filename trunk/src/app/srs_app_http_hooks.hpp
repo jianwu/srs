@@ -34,6 +34,9 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #ifdef SRS_AUTO_HTTP_CALLBACK
 
 #include <http_parser.h>
+#include <srs_protocol_json.hpp>
+
+
 
 class SrsHttpUri;
 class SrsStSocket;
@@ -119,8 +122,18 @@ public:
      * @param cid the source connection cid, for the on_dvr is async call.
      */
     static int on_hls_notify(int cid, std::string url, SrsRequest* req, std::string ts_url, int nb_notify);
+    /**
+     * When Edge try to lookup the source using dynamic API call
+     * @param url the api server url, to process the event.
+     *         ignore if empty.
+     * @param origin_url  The result origin url return from the API call
+     */
+    static int on_get_origin(std::string url, SrsRequest* req, std::string& origin_url);
+    
 private:
-    static int do_post(std::string url, std::string req, int& code, std::string& res);
+    static int do_get(std::string url, std::string req, int& code, std::string& res, SrsJsonAny** json = NULL);
+    static int do_post(std::string url, std::string req, int& code, std::string& res, SrsJsonAny** json = NULL);
+    static int do_http_request(bool isPost, std::string url, std::string req, int& code, std::string& res, SrsJsonAny** json);
 };
 
 #endif
