@@ -71,7 +71,8 @@ int SrsHttpHooks::on_connect(string url, SrsRequest* req)
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("pageUrl", req->pageUrl)
+        << SRS_JFIELD_STR("pageUrl", req->pageUrl) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -105,7 +106,8 @@ void SrsHttpHooks::on_close(string url, SrsRequest* req, int64_t send_bytes, int
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_ORG("send_bytes", send_bytes) << SRS_JFIELD_CONT
         << SRS_JFIELD_ORG("recv_bytes", recv_bytes) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("app", req->app)
+        << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -139,7 +141,8 @@ int SrsHttpHooks::on_publish(string url, SrsRequest* req)
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT  // Add tcUrl for auth publish rtmp stream client
-        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -172,7 +175,8 @@ void SrsHttpHooks::on_unpublish(string url, SrsRequest* req)
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -206,7 +210,8 @@ int SrsHttpHooks::on_play(string url, SrsRequest* req)
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("pageUrl", req->pageUrl)
+        << SRS_JFIELD_STR("pageUrl", req->pageUrl) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -239,7 +244,8 @@ void SrsHttpHooks::on_stop(string url, SrsRequest* req)
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("stream", req->stream)
+        << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -275,7 +281,8 @@ int SrsHttpHooks::on_dvr(int cid, string url, SrsRequest* req, string file)
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("cwd", cwd) << SRS_JFIELD_CONT
-        << SRS_JFIELD_STR("file", file)
+        << SRS_JFIELD_STR("file", file) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();
@@ -322,7 +329,8 @@ int SrsHttpHooks::on_hls(int cid, string url, SrsRequest* req, string file, stri
         << SRS_JFIELD_STR("url", ts_url) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("m3u8", m3u8) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("m3u8_url", m3u8_url) << SRS_JFIELD_CONT
-        << SRS_JFIELD_ORG("seq_no", sn)
+        << SRS_JFIELD_ORG("seq_no", sn) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
         
     std::string data = ss.str();

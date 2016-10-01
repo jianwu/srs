@@ -1,14 +1,14 @@
 var express = require('express');
 var app = express();
-var bodyParser = require('body-parser')
-app.use(bodyParser.urlencoded({ extended: false }))
-app.use(bodyParser.json())
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.get('/api/getOrigin', function (req, res) {
   var r = {
     code: 0,
     origin: 'localhost:19350'
-  }
+  };
   res.send(r);
   //res.send('Hello World!');
 });
