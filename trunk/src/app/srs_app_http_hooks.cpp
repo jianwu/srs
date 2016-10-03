@@ -474,14 +474,19 @@ int SrsHttpHooks::do_http_request(bool isPost, std::string url, std::string req,
     if ((ret = http.initialize(uri.get_host(), uri.get_port())) != ERROR_SUCCESS) {
         return ret;
     }
-    
+
+    std::string path = uri.get_path();
+    if(strlen(uri.get_query())) {
+        path = path + "?" + uri.get_query();
+    }
+
     ISrsHttpMessage* msg = NULL;
     if (isPost) {
-        if ((ret = http.post(uri.get_path(), req, &msg)) != ERROR_SUCCESS) {
+        if ((ret = http.post(path, req, &msg)) != ERROR_SUCCESS) {
             return ret;
         }
     } else {
-        if ((ret = http.get(uri.get_path(), req, &msg)) != ERROR_SUCCESS) {
+        if ((ret = http.get(path, req, &msg)) != ERROR_SUCCESS) {
             return ret;
         }
     }
