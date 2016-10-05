@@ -424,7 +424,8 @@ int SrsHttpHooks::on_get_origin(std::string url, SrsRequest* req, std::string& o
     
     url = srs_string_replace(url, "[app]", req->app);
     url = srs_string_replace(url, "[stream]", req->stream);
-    
+    url = srs_string_replace(url, "[deviceId]", _srs_config->get_heartbeat_device_id());
+
     std::string res;
     int status_code;
     SrsJsonAny* json;
@@ -511,9 +512,10 @@ int SrsHttpHooks::do_http_request(bool isPost, std::string url, std::string req,
         srs_error("invalid empty response. ret=%d", ret);
         return ret;
     }
-    
+
+    std::string res1 = res;  // json parser will modify this string. so we have to make a copy.
     // parse string res to json.
-    SrsJsonAny* info = SrsJsonAny::loads((char*)res.c_str());
+    SrsJsonAny* info = SrsJsonAny::loads((char*)res1.c_str());
     if (!info) {
         ret = ERROR_HTTP_DATA_INVALID;
         srs_error("invalid response %s. ret=%d", res.c_str(), ret);
