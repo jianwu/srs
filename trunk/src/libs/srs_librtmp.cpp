@@ -1296,12 +1296,20 @@ int srs_write_h264_ipb_frame(Context* context,
     
     // 5bits, 7.3.1 NAL unit syntax,
     // H.264-AVC-ISO_IEC_14496-10.pdf, page 44.
-    //  7: SPS, 8: PPS, 5: I Frame, 1: P Frame
-    SrsAvcNaluType nal_unit_type = (SrsAvcNaluType)(frame[0] & 0x1f);
+    //  5: I Frame, 1: P/B Frame
+    // @remark we already group sps/pps to sequence header frame;
+    //      for I/P NALU, we send them in isolate frame, each NALU in a frame;
+    //      for other NALU, for example, AUD/SEI, we just ignore them, because
+    //      AUD used in annexb to split frame, while SEI generally we can ignore it.
+    // TODO: maybe we should group all NALUs split by AUD to a frame.
+    SrsAvcNaluType nut = (SrsAvcNaluType)(frame[0] & 0x1f);
+    if (nut != SrsAvcNaluTypeIDR && nut != SrsAvcNaluTypeNonIDR) {
+        return ret;
+    }
     
     // for IDR frame, the frame is keyframe.
     SrsCodecVideoAVCFrame frame_type = SrsCodecVideoAVCFrameInterFrame;
-    if (nal_unit_type == SrsAvcNaluTypeIDR) {
+    if (nut == SrsAvcNaluTypeIDR) {
         frame_type = SrsCodecVideoAVCFrameKeyFrame;
     }
     
@@ -1994,6 +2002,9 @@ int64_t srs_utils_send_bytes(srs_rtmp_t rtmp)
 {
     srs_assert(rtmp != NULL);
     Context* context = (Context*)rtmp;
+    if (!context->rtmp) {
+        return 0;
+    }
     return context->rtmp->get_send_bytes();
 }
 
@@ -2001,6 +2012,9 @@ int64_t srs_utils_recv_bytes(srs_rtmp_t rtmp)
 {
     srs_assert(rtmp != NULL);
     Context* context = (Context*)rtmp;
+    if (!context->rtmp) {
+        return 0;
+    }
     return context->rtmp->get_recv_bytes();
 }
 
