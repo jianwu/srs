@@ -104,6 +104,7 @@ void SrsHttpHooks::on_close(string url, SrsRequest* req, int64_t send_bytes, int
         << SRS_JFIELD_ORG("client_id", client_id) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT
         << SRS_JFIELD_ORG("send_bytes", send_bytes) << SRS_JFIELD_CONT
         << SRS_JFIELD_ORG("recv_bytes", recv_bytes) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
@@ -175,6 +176,7 @@ void SrsHttpHooks::on_unpublish(string url, SrsRequest* req)
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;
@@ -209,6 +211,7 @@ int SrsHttpHooks::on_play(string url, SrsRequest* req)
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("pageUrl", req->pageUrl) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
@@ -244,6 +247,7 @@ void SrsHttpHooks::on_stop(string url, SrsRequest* req)
         << SRS_JFIELD_STR("ip", req->ip) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("vhost", req->vhost) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("app", req->app) << SRS_JFIELD_CONT
+        << SRS_JFIELD_STR("tcUrl", req->tcUrl) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("stream", req->stream) << SRS_JFIELD_CONT
         << SRS_JFIELD_STR("deviceId", _srs_config->get_heartbeat_device_id())
         << SRS_JOBJECT_END;

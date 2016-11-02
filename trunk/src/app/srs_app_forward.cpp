@@ -367,7 +367,8 @@ int SrsForwarder::connect_app(string ep_server, string ep_port)
     data->set("srs_server_ip", SrsAmf0Any::str(local_ip.c_str()));
     
     // generate the tcUrl
-    std::string param = "";
+    std::string deviceId = _srs_config->get_heartbeat_device_id();
+    std::string param = deviceId.empty() ? "" : "?clientId=" + deviceId;
     std::string tc_url = srs_generate_tc_url(ep_server, req->vhost, req->app, ep_port, param);
     
     // upnode server identity will show in the connect_app of client.

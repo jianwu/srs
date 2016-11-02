@@ -252,7 +252,8 @@ int SrsEdgeIngester::connect_app(string ep_server, string ep_port)
     std::string vhost = _srs_config->get_vhost_edge_transform_vhost(req->vhost);
     vhost = srs_string_replace(vhost, "[vhost]", req->vhost);
     // generate the tcUrl
-    std::string param = "";
+    std::string deviceId = _srs_config->get_heartbeat_device_id();
+    std::string param = deviceId.empty() ? "" : "?clientId=" + deviceId;
     std::string tc_url = srs_generate_tc_url(ep_server, vhost, req->app, ep_port, param);
     srs_trace("edge ingest from %s:%s at %s", ep_server.c_str(), ep_port.c_str(), tc_url.c_str());
     
