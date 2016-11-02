@@ -501,6 +501,14 @@ int SrsLiveStream::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         srs_error("http: unsupported pattern %s", entry->pattern.c_str());
         return ret;
     }
+
+    // whenever crossdomain required, set crossdomain header.
+    if (true) {
+        w->header()->set("Access-Control-Allow-Origin", "*");
+        w->header()->set("Access-Control-Allow-Methods", "GET, POST, HEAD, PUT, DELETE");
+        w->header()->set("Access-Control-Allow-Headers", "Cache-Control,X-Proxy-Authorization,X-Requested-With,Content-Type");
+    }
+
     SrsAutoFree(ISrsStreamEncoder, enc);
     
     // create consumer of souce, ignore gop cache, use the audio gop cache.
