@@ -391,7 +391,14 @@ int SrsHttpFileServer::serve_file(ISrsHttpResponseWriter* w, ISrsHttpMessage* r,
             w->header()->set_content_type(_mime[ext]);
         }
     }
-    
+
+    // whenever crossdomain required, set crossdomain header.
+    if (true) {
+        w->header()->set("Access-Control-Allow-Origin", "*");
+        w->header()->set("Access-Control-Allow-Methods", "GET, POST, HEAD, PUT, DELETE");
+        w->header()->set("Access-Control-Allow-Headers", "Cache-Control,X-Proxy-Authorization,X-Requested-With,Content-Type");
+    }
+
     // write body.
     int64_t left = length;
     if ((ret = copy(w, &fs, r, (int)left)) != ERROR_SUCCESS) {
