@@ -35,6 +35,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <srs_app_st.hpp>
 #include <srs_app_thread.hpp>
 #include <srs_protocol_kbps.hpp>
+#include <srs_rtmp_stack.hpp>
 
 class SrsConnection;
 
@@ -79,10 +80,7 @@ protected:
     * the underlayer st fd handler.
     */
     st_netfd_t stfd;
-    /**
-    * the ip of client.
-    */
-    std::string ip;
+
     /**
      * whether the connection is disposed,
      * when disposed, connection should stop cycle and cleanup itself.
@@ -93,6 +91,11 @@ protected:
      * when expired, the connection must never be served and quit ASAP.
      */
     bool expired;
+public:
+    /**
+    * the ip of client.
+    */
+    std::string ip;
 public:
     SrsConnection(IConnectionManager* cm, st_netfd_t c);
     virtual ~SrsConnection();
@@ -134,6 +137,8 @@ public:
      * set connection to expired.
      */
     virtual void expire();
+
+    SrsRequest* srsReq;  // A place holder to manage SrsRequest lifecyle.
 protected:
     /**
     * for concrete connection to do the cycle.

@@ -614,10 +614,10 @@ public:
 /**
  * the rtmp client type.
  */
-enum SrsRtmpConnType
-{
+enum SrsRtmpConnType {
     SrsRtmpConnUnknown,
     SrsRtmpConnPlay,
+    SrsRtmpFLVPlay,
     SrsRtmpConnFMLEPublish,
     SrsRtmpConnFlashPublish,
 };

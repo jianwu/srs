@@ -42,6 +42,7 @@ SrsConnection::SrsConnection(IConnectionManager* cm, st_netfd_t c)
     stfd = c;
     disposed = false;
     expired = false;
+    srsReq = NULL;
     
     // the client thread should reap itself, 
     // so we never use joinable.
@@ -53,6 +54,8 @@ SrsConnection::SrsConnection(IConnectionManager* cm, st_netfd_t c)
 SrsConnection::~SrsConnection()
 {
     dispose();
+    if(srsReq)
+        delete srsReq;
     
     srs_freep(pthread);
 }

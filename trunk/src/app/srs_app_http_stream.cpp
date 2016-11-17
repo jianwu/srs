@@ -54,6 +54,7 @@ using namespace std;
 #include <srs_app_pithy_print.hpp>
 #include <srs_app_source.hpp>
 #include <srs_app_server.hpp>
+#include <srs_app_statistic.hpp>
 
 #endif
 
@@ -123,10 +124,10 @@ int SrsStreamCache::cycle()
         st_sleep(SRS_STREAM_CACHE_CYCLE_SECONDS);
         return ret;
     }
-    
     // the stream cache will create consumer to cache stream,
     // which will trigger to fetch stream from origin for edge.
     SrsConsumer* consumer = NULL;
+
     if ((ret = source->create_consumer(NULL, consumer, false, false, true)) != ERROR_SUCCESS) {
         srs_error("http: create consumer failed. ret=%d", ret);
         return ret;
@@ -832,7 +833,7 @@ int SrsHttpStreamServer::http_mount(SrsSource* s, SrsRequest* r)
         mount = srs_string_replace(mount, SRS_CONSTS_RTMP_DEFAULT_VHOST"/", "/");
         
         entry = new SrsLiveEntry(mount, tmpl->hstrs);
-    
+
         entry->cache = new SrsStreamCache(s, r);
         entry->stream = new SrsLiveStream(s, r, entry->cache);
 
@@ -1218,7 +1219,10 @@ int SrsHttpStreamServer::hijack(ISrsHttpMessage* request, ISrsHttpHandler** ph)
     
     // hijack for entry.
     SrsRequest* r = hreq->to_request(vhost->arg0());
-    SrsAutoFree(SrsRequest, r);
+    r->ip = hreq->connection()->ip;
+
+    //SrsAutoFree(SrsRequest, r);
+    hreq->connection()->srsReq = r;  // Let SrsConnection to Manage it's lifecyle, Ugly, Ugly!!!.
 
     std::string sid = r->get_stream_url();
     // check whether the http remux is enabled,
@@ -1243,6 +1247,13 @@ int SrsHttpStreamServer::hijack(ISrsHttpMessage* request, ISrsHttpHandler** ph)
         }
     }
     srs_assert(s != NULL);
+
+    // update the statistic when source disconveried.
+    SrsStatistic* stat = SrsStatistic::instance();
+    if ((ret = stat->on_client(_srs_context->get_id(), r, hreq->connection(), SrsRtmpFLVPlay)) != ERROR_SUCCESS) {
+        srs_error("stat client failed. ret=%d", ret);
+        return ret;
+    }
 
     // create http streaming handler.
     if ((ret = http_mount(s, r)) != ERROR_SUCCESS) {

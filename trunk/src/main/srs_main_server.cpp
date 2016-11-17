@@ -26,6 +26,8 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <execinfo.h>
+
 
 #ifdef SRS_AUTO_GPERF_MP
     #include <gperftools/heap-profiler.h>
@@ -379,8 +381,23 @@ int run()
     return run_master();
 }
 
+void exception_handler() {
+    srs_error("===================================== unhandled exception =====================================");
+    void *trace_elems[20];
+    int trace_elem_count(backtrace( trace_elems, 20 ));
+    char **stack_syms(backtrace_symbols( trace_elems, trace_elem_count ));
+    for ( int i = 0 ; i < trace_elem_count ; ++i ) {
+        srs_error(stack_syms[i]);
+    }
+    free( stack_syms );
+
+    exit(1);
+}
+
 int run_master()
 {
+    std::set_terminate(exception_handler);
+
     int ret = ERROR_SUCCESS;
     
     if ((ret = _srs_server->initialize_st()) != ERROR_SUCCESS) {
