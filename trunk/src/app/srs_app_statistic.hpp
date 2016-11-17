@@ -157,6 +157,7 @@ public:
 public:
     virtual SrsStatisticVhost* find_vhost(int vid);
     virtual SrsStatisticStream* find_stream(int sid);
+    virtual SrsStatisticStream* find_stream(std::string url);
     virtual SrsStatisticClient* find_client(int cid);
 public:
     /**

@@ -738,14 +738,21 @@ int SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
     // path: {pattern}{stream_id}
     // e.g. /api/v1/streams/100     pattern= /api/v1/streams/, stream_id=100
     int sid = r->parse_rest_id(entry->pattern);
-    
     SrsStatisticStream* stream = NULL;
     if (sid >= 0 && (stream = stat->find_stream(sid)) == NULL) {
         ret = ERROR_RTMP_STREAM_NOT_FOUND;
         srs_error("stream stream_id=%d not found. ret=%d", sid, ret);
         return srs_api_response_code(w, r, ret);
     }
-    
+
+    // e.g. /api/vi/stream?name=[vhost]/app/stream
+    string url = r->query_get("url");
+    if(!url.empty() && (stream = stat->find_stream(url)) == NULL) {
+        ret = ERROR_RTMP_STREAM_NOT_FOUND;
+        srs_error("stream stream_url=%s not found. ret=%d", url.c_str(), ret);
+        return srs_api_response_code(w, r, ret);
+    }
+
     if (r->is_http_get()) {
         std::stringstream data;
         

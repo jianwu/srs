@@ -549,3 +549,7 @@ SrsStatisticStream* SrsStatistic::create_stream(SrsStatisticVhost* vhost, SrsReq
     return stream;
 }
 
+SrsStatisticStream* SrsStatistic::find_stream(std::string url)
+{
+    return rstreams[url];
+}
