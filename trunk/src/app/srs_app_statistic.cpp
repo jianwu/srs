@@ -357,6 +357,7 @@ int SrsStatistic::on_client(int id, SrsRequest* req, SrsConnection* conn, SrsRtm
         client->id = id;
         client->stream = stream;
         clients[id] = client;
+        stream->clients[id] = client;
     } else {
         client = clients[id];
     }
@@ -384,6 +385,7 @@ void SrsStatistic::on_disconnect(int id)
     
     srs_freep(client);
     clients.erase(it);
+    stream->clients.erase(id);
     
     stream->nb_clients--;
     vhost->nb_clients--;
@@ -480,8 +482,11 @@ int SrsStatistic::dumps_streams(stringstream& ss)
     
     return ret;
 }
+int SrsStatistic::dumps_clients(stringstream& ss, int start, int count) {
+    return dumps_clients(clients, ss, start, count);
+}
 
-int SrsStatistic::dumps_clients(stringstream& ss, int start, int count)
+int SrsStatistic::dumps_clients(std::map<int, SrsStatisticClient*>&clients, stringstream& ss, int start, int count)
 {
     int ret = ERROR_SUCCESS;
     

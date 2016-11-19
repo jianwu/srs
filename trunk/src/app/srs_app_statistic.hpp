@@ -59,6 +59,8 @@ public:
     virtual int dumps(std::stringstream& ss);
 };
 
+struct SrsStatisticClient;
+
 struct SrsStatisticStream
 {
 public:
@@ -70,6 +72,8 @@ public:
     bool active;
     int connection_cid;
     int nb_clients;
+    std::map<int, SrsStatisticClient*> clients;
+
 public:
     /**
     * stream total kbps.
@@ -230,6 +234,8 @@ public:
      * @param count the max count of clients to dump.
      */
     virtual int dumps_clients(std::stringstream& ss, int start, int count);
+    virtual int dumps_clients(std::map<int, SrsStatisticClient*>&clients, std::stringstream& ss, int start, int count);
+
 private:
     virtual SrsStatisticVhost* create_vhost(SrsRequest* req);
     virtual SrsStatisticStream* create_stream(SrsStatisticVhost* vhost, SrsRequest* req);

@@ -745,7 +745,7 @@ int SrsGoApiStreams::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         return srs_api_response_code(w, r, ret);
     }
 
-    // e.g. /api/vi/stream?name=[vhost]/app/stream
+    // e.g. /api/vi/stream/?url=[vhost]/app/stream
     string url = r->query_get("url");
     if(!url.empty() && (stream = stat->find_stream(url)) == NULL) {
         ret = ERROR_RTMP_STREAM_NOT_FOUND;
@@ -805,7 +805,7 @@ int SrsGoApiClients::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         srs_error("client id=%d not found. ret=%d", cid, ret);
         return srs_api_response_code(w, r, ret);
     }
-    
+
     if (r->is_http_delete()) {
         if (!client) {
             ret = ERROR_RTMP_CLIENT_NOT_FOUND;
@@ -818,10 +818,23 @@ int SrsGoApiClients::serve_http(ISrsHttpResponseWriter* w, ISrsHttpMessage* r)
         return srs_api_response_code(w, r, ret);
     } else if (r->is_http_get()) {
         std::stringstream data;
-        
+
         if (!client) {
-            ret = stat->dumps_clients(data, 0, 10);
-            
+            // e.g. /api/vi/clients/?stream=123456
+            int64_t streamId = strtoll(r->query_get("stream").c_str(), NULL, 10);
+            SrsStatisticStream* stream = NULL;
+            if(streamId && (stream = stat->find_stream(streamId)) == NULL) {
+                ret = ERROR_RTMP_STREAM_NOT_FOUND;
+                srs_error("client streamId=%ld not found. ret=%d", streamId, ret);
+                return srs_api_response_code(w, r, ret);
+            }
+
+            if(stream) {
+                ret = stat->dumps_clients(stream->clients, data, 0, 10);
+            } else {
+                ret = stat->dumps_clients(data, 0, 10);
+            }
+
             ss << SRS_JOBJECT_START
                     << SRS_JFIELD_ERROR(ret) << SRS_JFIELD_CONT
                     << SRS_JFIELD_ORG("server", stat->server_id()) << SRS_JFIELD_CONT
